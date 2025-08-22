@@ -1,14 +1,8 @@
 import time
-import logging
 import sqlite3
 import math
 import json
 from mcp.server.fastmcp import FastMCP
-
-# Initialize class instances
-logger = logging.getLogger(__name__)
-logging.basicConfig(filename='stateParks.log', level=logging.INFO)
-
 
 mcp = FastMCP("stateParks")
 
