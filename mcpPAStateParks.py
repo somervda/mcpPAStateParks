@@ -81,35 +81,7 @@ def get_db_connection():
     return conn
 
 @mcp.tool()
-def get_time() -> str:
-    # Use to check the web service is up and running
-    """
-    Gets the current date and time
-    Args:
-    """
-    return str(time.time())
-
-@mcp.tool()
-def get_parks() -> str :
-    """
-    Gets a list of all the pennsylvania state parks
-    Args:
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute("SELECT * FROM park")
-    rows = cursor.fetchall()
-    conn.close()
-
-    parks = [dict(row) for row in rows]  # Convert to list of dictionaries
-    return json.dumps(parks)
-
-
-
-
-@mcp.tool()
-def get_parks_by_distance(latitude: float,longitude:float,miles: int ) -> str:
+def get_state_parks_by_distance(latitude: float,longitude:float,miles: int ) -> str:
     """
     Gets a list of pennsylvania state parks by distance in miles from a location
     Args:
