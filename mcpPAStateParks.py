@@ -4,7 +4,7 @@ import math
 import json
 from mcp.server.fastmcp import FastMCP
 
-mcp = FastMCP("stateParks")
+mcp = FastMCP("stateParks",port=8103,host="0.0.0.0")
 
 
 def distance_between_points(lat1, lon1, lat2, lon2):
@@ -75,9 +75,26 @@ def get_db_connection():
     return conn
 
 @mcp.tool()
+def get_state_parks_details_by_name(name: str ) -> str:
+    """
+    Gets a detailed information about a specific pennsylvania state park by name
+    Args:
+        name: The name of the park   
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    select =   "SELECT * FROM park where name = '" + name + "'"
+    print(select)
+    cursor.execute(select)
+    rows = cursor.fetchall()
+    conn.close()
+    park = [dict(row) for row in rows]  # Convert to list of dictionaries items
+    return json.dumps(park)
+
+@mcp.tool()
 def get_state_parks_by_distance(latitude: float,longitude:float,miles: int ) -> str:
     """
-    Gets a list of pennsylvania state parks by distance in miles from a location
+    Gets a list of pennsylvania state park names by distance in miles from a location
     Args:
         latitude: A floating point number for the latitude of a location  
         longitude: A floating point number for the longitude of a location  
@@ -90,7 +107,7 @@ def get_state_parks_by_distance(latitude: float,longitude:float,miles: int ) -> 
     min_lat, max_lat, min_lon, max_lon = lat_lon_range(lat,long,miles)
     conn = get_db_connection()
     cursor = conn.cursor()
-    select =   "SELECT * FROM park where latitude>={:.4f} and latitude <={:.4f} and longitude>={:.4f} and longitude<={:.4f}".format(min_lat, max_lat, min_lon, max_lon)
+    select =   "SELECT name,hasRVCamping,longitude,latitude FROM park where latitude>={:.4f} and latitude <={:.4f} and longitude>={:.4f} and longitude<={:.4f}".format(min_lat, max_lat, min_lon, max_lon)
     print(select)
     cursor.execute(select)
     rows = cursor.fetchall()
@@ -99,8 +116,10 @@ def get_state_parks_by_distance(latitude: float,longitude:float,miles: int ) -> 
     parkAndDistance=[]
     for park in parks:
         park['distance']=distance_between_points(lat,long,park.get("latitude"),park.get("longitude"))
+        del park['latitude']
+        del park['longitude']
         parkAndDistance.append(park)
     return json.dumps(parkAndDistance)
 
 if __name__ == '__main__':
-    mcp.run()
+    mcp.run(transport="streamable-http")

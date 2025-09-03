@@ -1,0 +1,17 @@
+[Unit]
+Description=MCP PA State Park Service
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/mcpPAStateParks
+# Path to the python interpreter in your virtual environment
+ExecStart=/home/pi/mcpPAStateParks/.venv/bin/python mcpPAStateParks.py 
+Restart=always
+RestartSec=30
+
+
+[Install]
+WantedBy=multi-user.target
